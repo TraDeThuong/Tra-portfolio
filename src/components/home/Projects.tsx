@@ -68,6 +68,12 @@ export default function Projects() {
   ];
 
   const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const currentX = useRef(0);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const trackStartX = useRef(0);
+  const lastMoves = useRef<Array<{ x: number; t: number }>>([]);
 
   useGSAP(
     () => {
@@ -84,25 +90,6 @@ export default function Projects() {
           scrollTrigger: {
             trigger: "#projects",
             start: "top 80%",
-            toggleActions: "play none none none",
-          },
-        }
-      );
-
-      // Projects card stagger reveal
-      gsap.fromTo(
-        ".project-card",
-        { y: 50, opacity: 0, scale: 0.95 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".projects-grid",
-            start: "top 85%",
             toggleActions: "play none none none",
           },
         }
@@ -134,6 +121,100 @@ export default function Projects() {
           });
         });
       });
+
+      // Replace auto-loop with pointer drag / wheel scroll + momentum
+      const track = trackRef.current;
+      function wrapX(x: number) {
+        if (!track) return x;
+        const half = track.scrollWidth / 2;
+        if (!half) return x;
+        // normalize into (-half, 0]
+        while (x <= -half) x += half;
+        while (x > 0) x -= half;
+        return x;
+      }
+
+      function setTrackX(x: number) {
+        if (!track) return;
+        const wrapped = wrapX(x);
+        currentX.current = wrapped;
+        gsap.set(track, { x: wrapped });
+      }
+
+      // Wheel scroll (vertical wheel -> horizontal)
+      const onWheel = (e: WheelEvent) => {
+        e.preventDefault();
+        const delta = e.deltaY;
+        setTrackX(currentX.current - delta);
+      };
+
+      // Pointer drag handlers
+      const onPointerDown = (e: PointerEvent) => {
+        isDragging.current = true;
+        dragStartX.current = e.clientX;
+        trackStartX.current = currentX.current;
+        lastMoves.current = [{ x: e.clientX, t: performance.now() }];
+        (e.target as Element).setPointerCapture?.(e.pointerId);
+      };
+
+      const onPointerMove = (e: PointerEvent) => {
+        if (!isDragging.current) return;
+        const delta = e.clientX - dragStartX.current;
+        const next = trackStartX.current + delta;
+        setTrackX(next);
+        // store last moves for velocity
+        const now = performance.now();
+        lastMoves.current.push({ x: e.clientX, t: now });
+        if (lastMoves.current.length > 6) lastMoves.current.shift();
+      };
+
+      const onPointerUp = (e: PointerEvent) => {
+        if (!isDragging.current) return;
+        isDragging.current = false;
+        const now = performance.now();
+        // compute velocity from lastMoves
+        const moves = lastMoves.current;
+        if (moves.length >= 2) {
+          const first = moves[0];
+          const last = moves[moves.length - 1];
+          const dx = last.x - first.x;
+          const dt = (last.t - first.t) || 16;
+          let velocity = dx / dt; // px per ms
+          // momentum animation using RAF
+          let v = velocity * 1000; // px/s
+          const friction = 0.95;
+          let lastTime = performance.now();
+          function momentumFrame() {
+            const t = performance.now();
+            const dtSec = (t - lastTime) / 1000;
+            lastTime = t;
+            v *= Math.pow(friction, dtSec * 60);
+            const next = currentX.current + v * dtSec;
+            setTrackX(next);
+            if (Math.abs(v) > 5) requestAnimationFrame(momentumFrame);
+          }
+          requestAnimationFrame(momentumFrame);
+        }
+        lastMoves.current = [];
+        (e.target as Element).releasePointerCapture?.(e.pointerId);
+      };
+
+      if (track) {
+        track.addEventListener("pointerdown", onPointerDown);
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp);
+        track.addEventListener("wheel", onWheel, { passive: false });
+      }
+
+      // cleanup listeners when unmounting
+      return () => {
+        if (track) {
+          track.removeEventListener("pointerdown", onPointerDown);
+          window.removeEventListener("pointermove", onPointerMove);
+          window.removeEventListener("pointerup", onPointerUp);
+          track.removeEventListener("wheel", onWheel);
+        }
+      };
     },
     { scope: sectionRef }
   );
@@ -164,13 +245,14 @@ export default function Projects() {
           </p>
         </div>
 
-        {/* Projects Cards Grid */}
-        <div className="projects-grid grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((proj, idx) => (
-            <div
-              key={idx}
-              className="project-card group relative flex flex-col justify-between p-8 rounded-3xl glass-panel glow-card transition-all duration-300 hover:-translate-y-1 hover:border-white/15 will-change-transform"
-            >
+        {/* Projects Cards Track (horizontal loop) */}
+        <div className="projects-track-wrapper relative w-full overflow-hidden">
+          <div ref={trackRef} className="projects-track flex items-stretch gap-6">
+            {[...projects, ...projects].map((proj, idx) => (
+              <div
+                key={idx}
+                className="project-card group relative flex-shrink-0 w-80 md:w-96 flex flex-col justify-between p-8 rounded-3xl glass-panel glow-card transition-all duration-300 hover:-translate-y-1 hover:border-white/15 will-change-transform"
+              >
               {/* Decorative Corner Glow */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent rounded-tr-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
@@ -252,8 +334,9 @@ export default function Projects() {
                   </span>
                 ))}
               </div>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* View All Projects Link */}
