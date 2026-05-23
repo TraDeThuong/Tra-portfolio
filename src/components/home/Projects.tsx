@@ -171,7 +171,7 @@ export default function Projects() {
       const onPointerUp = (e: PointerEvent) => {
         if (!isDragging.current) return;
         isDragging.current = false;
-        const now = performance.now();
+        // const now = performance.now();
         // compute velocity from lastMoves
         const moves = lastMoves.current;
         if (moves.length >= 2) {
