@@ -1,6 +1,6 @@
 # TRA Portfolio
 
-https://tra-portfolio-kappa.vercel.app/home
+https://tra-portfolio-kappa.vercel.app
 
 This is a personal portfolio site built with React, TypeScript and Vite. It contains pages to present an introduction, skills, projects, and contact information.
 
