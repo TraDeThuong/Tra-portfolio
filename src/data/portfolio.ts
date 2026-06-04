@@ -143,6 +143,11 @@ export const skillCategories: SkillCategory[] = [
     items: ["React", "Next.js", "React Query", "Redux Toolkit", "React Router"],
   },
   {
+    label: "Backend",
+    description: "Server-side fundamentals for APIs and full-stack product flows.",
+    items: ["Node.js", "Express.js", "REST APIs"],
+  },
+  {
     label: "UI & Styling",
     description: "Interface systems, motion, and responsive styling.",
     items: ["Tailwind CSS", "GSAP", "Shadcn/ui", "Styled Components", "CSS Modules"],
@@ -150,7 +155,7 @@ export const skillCategories: SkillCategory[] = [
   {
     label: "Design & Tools",
     description: "Design, source control, and day-to-day development workflow.",
-    items: ["Figma", "Git / GitHub", "VS Code", "Adobe Photoshop", "Storybook"],
+    items: ["Figma", "Git / GitHub", "VS Code", "Adobe Photoshop", "Postman"],
   },
 ];
 

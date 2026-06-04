@@ -136,21 +136,19 @@ export default function About() {
           </div>
 
           <SpotlightText className="text-base md:text-lg">
-            As a final-year IT student at Posts and Telecommunications Institute
-            of Technology, I am passionate about creating digital experiences
-            where logic and creativity coexist. I enjoy transforming ideas into
-            interactive interfaces through clean code and thoughtful design. With
-            experience in ReactJS and a strong foundation in UI/UX principles, I
-            have developed various academic and personal projects focused on
-            front-end development, component structure, and responsive product
-            interfaces.
+          As a final-year Multimedia Technology student majoring in Application Development 
+          at PTIT HCMC, I am passionate about front-end development and enjoy combining logical
+           programming with creative design thinking. Studying Multimedia Technology has given 
+           me a strong sense of aesthetics, the ability to build intuitive user interfaces, and 
+           a creative approach to enhancing user experience. With proficiency in ReactJS and a 
+           solid understanding of UI/UX principles, I have completed various academic and personal
+            projects.
           </SpotlightText>
 
           <SpotlightText className="text-sm md:text-base">
-            Currently, I am continuously improving my skills in Figma and modern
-            web technologies to become an internship-ready frontend developer
-            who can contribute to production teams, communicate design decisions,
-            and keep learning across the full stack.
+            Currently, I am expanding my backend knowledge, particularly in Node.js and ExpressJS,
+             to strengthen my system development skills and work toward becoming a full-stack
+             developer.
           </SpotlightText>
 
           <div className="flex items-center gap-4 mt-2">

@@ -6,36 +6,51 @@ import { skillCategories } from "../../data/portfolio";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const accents = [
-  {
+const defaultAccent = {
+  label: "Stack",
+  border: "border-white/15",
+  surface: "bg-white/[0.06]",
+  text: "text-gray-200",
+  bar: "from-white to-brand-cyan",
+};
+
+const accentsByCategory: Record<string, typeof defaultAccent> = {
+  Languages: {
     label: "Core",
     border: "border-brand-flax/25",
     surface: "bg-brand-flax/10",
     text: "text-brand-flax",
     bar: "from-brand-flax to-brand-olivine",
   },
-  {
+  "Frameworks & Libraries": {
     label: "Build",
     border: "border-brand-cyan/25",
     surface: "bg-brand-cyan/10",
     text: "text-brand-cyan",
     bar: "from-brand-cyan to-brand-reef",
   },
-  {
+  Backend: {
+    label: "Backend",
+    border: "border-brand-reef/25",
+    surface: "bg-brand-reef/10",
+    text: "text-brand-reef",
+    bar: "from-brand-reef to-brand-cyan",
+  },
+  "UI & Styling": {
     label: "UI",
     border: "border-brand-olivine/25",
     surface: "bg-brand-olivine/10",
     text: "text-brand-olivine",
     bar: "from-brand-olivine to-brand-flax",
   },
-  {
+  "Design & Tools": {
     label: "Workflow",
     border: "border-white/15",
     surface: "bg-white/[0.06]",
     text: "text-gray-200",
     bar: "from-white to-brand-cyan",
   },
-];
+};
 
 export default function TechStack() {
   const containerRef = useRef<HTMLElement>(null);
@@ -132,11 +147,11 @@ export default function TechStack() {
 
           <div className="stack-intro grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
             <div className="border-r border-white/10 p-4">
-              <span className="block text-2xl font-black text-white">4</span>
+              <span className="block text-2xl font-black text-white">5</span>
               <span className="text-xs text-gray-500">Focus areas</span>
             </div>
             <div className="border-r border-white/10 p-4">
-              <span className="block text-2xl font-black text-white">18+</span>
+              <span className="block text-2xl font-black text-white">21+</span>
               <span className="text-xs text-gray-500">Tools</span>
             </div>
             <div className="p-4">
@@ -148,7 +163,7 @@ export default function TechStack() {
 
         <div className="stack-grid grid grid-cols-1 gap-5 md:grid-cols-2">
           {skillCategories.map((category, index) => {
-            const accent = accents[index % accents.length];
+            const accent = accentsByCategory[category.label] ?? defaultAccent;
 
             return (
               <article
