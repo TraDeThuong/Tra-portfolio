@@ -3,19 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { Link } from "react-router-dom";
 
-export default function Hero() {
-  const config = {
-    smoothing: 0.12, 
-    movementThreshold: 0.01,
-    sizeFromSpeed: 0.25,
-    expandMultiplier: 3.5,
-    expandTime: 2.2,
-    expandEase: "power2.out",
-    dissolveStart: 1.8,
-    dissolveTime: 2.5,
-    dissolveEase: "power2.in"
-  }
+const HERO_FULL_TEXT = "Designing & Developing Premium Digital Products with Code & Art";
 
+const HERO_CONFIG = {
+  smoothing: 0.12,
+  movementThreshold: 0.01,
+  sizeFromSpeed: 0.25,
+  expandMultiplier: 3.5,
+  expandTime: 2.2,
+  expandEase: "power2.out",
+  dissolveStart: 1.8,
+  dissolveTime: 2.5,
+  dissolveEase: "power2.in",
+};
+
+export default function Hero() {
   const heroSection = useRef<HTMLElement | null>(null)
   const smudgeSVG = useRef<SVGSVGElement | null>(null)
   const smudgeContainer = useRef<SVGGElement | null>(null)
@@ -26,14 +28,21 @@ export default function Hero() {
   const hasStarted = useRef(false)
 
   // Typing animation state
-  const [typedText, setTypedText] = useState("")
-  const fullText = "Designing & Developing Premium Digital Products with Code & Art"
+  const [typedText, setTypedText] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? HERO_FULL_TEXT
+      : ""
+  )
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
     let idx = 0;
     const timer = setInterval(() => {
-      if (idx <= fullText.length) {
-        setTypedText(fullText.slice(0, idx));
+      if (idx <= HERO_FULL_TEXT.length) {
+        setTypedText(HERO_FULL_TEXT.slice(0, idx));
         idx++;
       } else {
         clearInterval(timer);
@@ -96,6 +105,8 @@ export default function Hero() {
   }, [])
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     function stampSmudgeAt(x: number, y: number, radius: number) {
       if (!smudgeContainer.current) return
       const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
@@ -118,35 +129,35 @@ export default function Hero() {
       })
 
       timeline.to(animateRadius, {
-        current: radius * config.expandMultiplier,
-        duration: config.expandTime,
-        ease: config.expandEase
+        current: radius * HERO_CONFIG.expandMultiplier,
+        duration: HERO_CONFIG.expandTime,
+        ease: HERO_CONFIG.expandEase
       })
 
       timeline.to(animateRadius, {
         current: 0,
-        duration: config.dissolveTime,
-        ease: config.dissolveEase
-      }, config.dissolveStart)
+        duration: HERO_CONFIG.dissolveTime,
+        ease: HERO_CONFIG.dissolveEase
+      }, HERO_CONFIG.dissolveStart)
     }
 
     let rafId: number
 
     function update() {
       if (hasStarted.current) {
-        smoothPointer.current.x += (pointer.current.x - smoothPointer.current.x) * config.smoothing
-        smoothPointer.current.y += (pointer.current.y - smoothPointer.current.y) * config.smoothing
+        smoothPointer.current.x += (pointer.current.x - smoothPointer.current.x) * HERO_CONFIG.smoothing
+        smoothPointer.current.y += (pointer.current.y - smoothPointer.current.y) * HERO_CONFIG.smoothing
 
         const speed = Math.hypot(
           pointer.current.x - smoothPointer.current.x,
           pointer.current.y - smoothPointer.current.y
         )
 
-        if (speed > config.movementThreshold) {
+        if (speed > HERO_CONFIG.movementThreshold) {
           stampSmudgeAt(
             smoothPointer.current.x,
             smoothPointer.current.y,
-            speed * config.sizeFromSpeed
+            speed * HERO_CONFIG.sizeFromSpeed
           )
         }
       }
@@ -160,6 +171,8 @@ export default function Hero() {
 
   // Intro text animations using GSAP
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     gsap.fromTo(".hero-animate", 
       { y: 50, opacity: 0 },
       { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power4.out" }

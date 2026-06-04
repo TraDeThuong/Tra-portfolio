@@ -18,22 +18,24 @@ function SpotlightText({
   const rafRef = useRef<number>(0);
   const state = useRef({ rx: 0, ry: 0, radius: 0, target: 0 });
 
-  const tick = useCallback(() => {
-    const s = state.current;
-    s.radius += (s.target - s.radius) * 0.12;
-    const r = Math.round(s.radius);
-    if (revealRef.current) {
-      const mask = `radial-gradient(circle ${r}px at ${Math.round(s.rx)}px ${Math.round(s.ry)}px, black 0%, black 40%, transparent 70%)`;
-      revealRef.current.style.webkitMaskImage = mask;
-      revealRef.current.style.maskImage = mask;
-    }
-    rafRef.current = requestAnimationFrame(tick);
-  }, []);
-
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    function tick() {
+      const s = state.current;
+      s.radius += (s.target - s.radius) * 0.12;
+      const r = Math.round(s.radius);
+      if (revealRef.current) {
+        const mask = `radial-gradient(circle ${r}px at ${Math.round(s.rx)}px ${Math.round(s.ry)}px, black 0%, black 40%, transparent 70%)`;
+        revealRef.current.style.webkitMaskImage = mask;
+        revealRef.current.style.maskImage = mask;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [tick]);
+  }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -77,6 +79,8 @@ export default function About() {
   const rightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const ctx = gsap.context(() => {
 
       // cột trái — slide từ trái vào
@@ -138,15 +142,15 @@ export default function About() {
             interactive interfaces through clean code and thoughtful design. With
             experience in ReactJS and a strong foundation in UI/UX principles, I
             have developed various academic and personal projects focused on
-            front-end development.
+            front-end development, component structure, and responsive product
+            interfaces.
           </SpotlightText>
 
           <SpotlightText className="text-sm md:text-base">
             Currently, I am continuously improving my skills in Figma and modern
-            web technologies to move closer toward becoming a full-stack
-            developer — someone who can seamlessly bridge design and development
-            while creating products that are both visually engaging and
-            user-centered.
+            web technologies to become an internship-ready frontend developer
+            who can contribute to production teams, communicate design decisions,
+            and keep learning across the full stack.
           </SpotlightText>
 
           <div className="flex items-center gap-4 mt-2">

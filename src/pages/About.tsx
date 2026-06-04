@@ -32,6 +32,17 @@ export default function AboutPage() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(".timeline-item, .about-intro-anim", {
+        clearProps: "all",
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        y: 0,
+      });
+      return;
+    }
+
     const path = pathRef.current;
     if (!path) return;
 
@@ -57,8 +68,8 @@ export default function AboutPage() {
     });
 
     // Staggered slide-in for timeline item cards
-    const items = gsap.utils.toArray(".timeline-item");
-    items.forEach((item: any) => {
+    const items = gsap.utils.toArray<HTMLElement>(".timeline-item");
+    items.forEach((item) => {
       const isLeft = item.classList.contains("item-left");
       gsap.fromTo(
         item,
@@ -114,7 +125,7 @@ export default function AboutPage() {
               I came to coding quite late, as my original direction was more connected to art and design. However, the more I learned about development, the more I realized that programming is also a creative process — a way to turn ideas and emotions into interactive experiences.
             </p>
             <p>
-              Currently, I’m focusing on improving my skills as a Frontend Developer, especially in UI/UX, motion, and modern web experiences. In the future, I hope to continue growing toward becoming a Fullstack Developer and build digital products that combine both creativity and technology.
+              Currently, I’m focusing on becoming internship-ready as a Frontend Developer, especially in UI/UX, accessibility, motion, and modern React experiences. In the future, I hope to continue growing toward becoming a Fullstack Developer and build digital products that combine both creativity and technology.
             </p>
             <p>
               A girl between art and technology — designing dreams through code.

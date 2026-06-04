@@ -1,16 +1,27 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger"; // 1. Import thêm ScrollTrigger
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navigate from "../components/Navigate";
+import { roadmapItems, skillCategories } from "../data/portfolio";
 
-// Đăng ký plugin với GSAP
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Skills() {
   const containerRef = useRef<HTMLElement>(null);
 
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(".header-anim, .card-anim, .tag-anim, .roadmap-title-anim, .milestone-anim", {
+        clearProps: "all",
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        y: 0,
+      });
+      return;
+    }
+
     const tl = gsap.timeline();
 
     // --- Animation load trang ban đầu ---
@@ -92,48 +103,7 @@ export default function Skills() {
     });
   };
 
-  const skillCategories = [
-    {
-      label: "Languages",
-      items: ["TypeScript", "JavaScript ES6+", "HTML5", "CSS3"],
-    },
-    {
-      label: "Frameworks & Libraries",
-      items: ["React", "Next.js", "Redux Toolkit", "React Query", "React Router"],
-    },
-    {
-      label: "Styling & Animation",
-      items: ["Tailwind CSS", "GSAP", "Styled Components", "Shadcn/ui"],
-    },
-    {
-      label: "Dev Tools",
-      items: ["Git / GitHub", "VS Code", "Figma", "Storybook"],
-    },
-  ];
-
-  // Data lộ trình học tập 3 năm mới được bổ sung
-  const roadmapYears = [
-    {
-      year: "Year 1 (Next Step)",
-      title: "Advanced Frontend & Backend Foundation",
-      description: "Deep dive into Next.js architecture (Server Components, Caching) and shift focus to Backend ecosystem using Node.js & NestJS framework.",
-      tags: ["Next.js (Advanced)", "Zustand", "Node.js", "NestJS", "RESTful API", "GraphQL"]
-    },
-    {
-      year: "Year 2",
-      title: "Database Mastery & System Architecture",
-      description: "Learn how to store data efficiently, optimize queries, and design scalable system patterns like Clean Architecture and Microservices.",
-      tags: ["PostgreSQL", "MongoDB", "Redis", "Prisma ORM", "Clean Architecture", "Message Brokers (RabbitMQ)"]
-    },
-    {
-      year: "Year 3",
-      title: "DevOps, Cloud Platforms & AI Integration",
-      description: "Automate delivery pipelines, containerize projects, host production environments on modern cloud services, and build context-aware AI utilities.",
-      tags: ["Docker", "GitHub Actions", "Nginx", "AWS (EC2/S3)", "OpenAI API", "LangChain"]
-    }
-  ];
-
-  const futureGoal = "I aim to become a well‑rounded Frontend Developer within the next three years, specializing in building immersive and highly interactive web experiences. Simultaneously, I am expanding my backend, system design, and AI integration knowledge to evolve into a versatile Full‑Stack Developer capable of creating complete, scalable, intelligent, and user‑centered digital products.";
+  const futureGoal = "I am focused on becoming an internship-ready Frontend Developer who can turn visual ideas into accessible, responsive, and production-minded React interfaces. My next step is expanding into backend fundamentals so I can contribute across complete full-stack product flows.";
 
   return (
     <section ref={containerRef} className="min-h-screen bg-[#030303] text-gray-100 pb-32 pt-24 relative overflow-hidden">
@@ -185,7 +155,7 @@ export default function Skills() {
 
         {/* Timeline Line */}
         <div className="roadmap-timeline relative border-l border-white/10 ml-4 md:ml-6 space-y-12">
-          {roadmapYears.map((milestone, idx) => (
+          {roadmapItems.map((milestone, idx) => (
             <div key={idx} className="milestone-anim relative pl-8 md:pl-10">
               
               {/* Timeline Bullet/Dot */}
@@ -208,7 +178,7 @@ export default function Skills() {
                   {milestone.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="text-[10px] text-brand-flax/90 bg-brand-text-brand-olivine/5 border border-brand-text-brand-olivine-500/10 px-2 py-0.5 rounded font-mono"
+                      className="text-[10px] text-brand-flax/90 bg-brand-olivine/5 border border-brand-olivine/10 px-2 py-0.5 rounded font-mono"
                     >
                       {tag}
                     </span>

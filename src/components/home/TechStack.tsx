@@ -2,299 +2,108 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { skillCategories } from "../../data/portfolio";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface SkillCategory {
-  label: string;
-  description: string;
-  items: string[];
-}
-
-const stack: SkillCategory[] = [
+const accents = [
   {
-    label: "Languages",
-    description: "Core programming and markup languages.",
-    items: ["TypeScript", "JavaScript ES6+", "HTML5", "CSS3"],
+    label: "Core",
+    border: "border-brand-flax/25",
+    surface: "bg-brand-flax/10",
+    text: "text-brand-flax",
+    bar: "from-brand-flax to-brand-olivine",
   },
   {
-    label: "Frameworks & libs",
-    description: "Modern rendering engines and state management.",
-    items: [
-      "React.js",
-      "Next.js",
-      "React Query",
-      "Redux Toolkit",
-      "React Router",
-      "React Context API",
-    ],
+    label: "Build",
+    border: "border-brand-cyan/25",
+    surface: "bg-brand-cyan/10",
+    text: "text-brand-cyan",
+    bar: "from-brand-cyan to-brand-reef",
   },
   {
-    label: "UI & styling",
-    description: "Styling utilities and interactive animation engines.",
-    items: [
-      "Tailwind CSS",
-      "GSAP",
-      "Shadcn/ui",
-      "Styled Components",
-      "Bootstrap",
-      "CSS Modules",
-    ],
+    label: "UI",
+    border: "border-brand-olivine/25",
+    surface: "bg-brand-olivine/10",
+    text: "text-brand-olivine",
+    bar: "from-brand-olivine to-brand-flax",
   },
   {
-    label: "Dev tools",
-    description: "Source control, design programs, and workflows.",
-    items: [
-      "Git / GitHub",
-      "Figma",
-      "VS Code",
-      "Adobe Photoshop",
-      "Adobe Illustrator",
-    ],
+    label: "Workflow",
+    border: "border-white/15",
+    surface: "bg-white/[0.06]",
+    text: "text-gray-200",
+    bar: "from-white to-brand-cyan",
   },
 ];
 
 export default function TechStack() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      const section = containerRef.current;
-
-      // =========================
-      // INTRO TIMELINE
-      // =========================
-
-      const tl = gsap.timeline({
-        defaults: {
-          ease: "power3.out",
-        },
-      });
-
-      tl.from(".ts-eyebrow", {
-        y: 16,
-        opacity: 0,
-        duration: 0.5,
-      })
-        .from(
-          ".ts-title-inner",
-          {
-            opacity: 0,
-            y: 80,
-            rotateX: 90,
-            transformPerspective: 1000,
-            duration: 1,
-            ease: "expo.out",
-          },
-          "-=0.2"
-        )
-        .from(
-          ".ts-sub-inner",
-          {
-            yPercent: 120,
-            opacity: 0,
-            duration: 0.7,
-          },
-          "-=0.6"
-        );
-
-      // =========================
-      // FLOATING ORB
-      // =========================
-
-      gsap.to(".ts-orb", {
-        y: 120,
-        x: -80,
-        duration: 8,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-
-      // =========================
-      // ROW REVEAL + PARALLAX
-      // =========================
-
-      gsap.utils.toArray<HTMLElement>(".ts-row").forEach((row, i) => {
-        const badges = row.querySelectorAll<HTMLElement>(".ts-badge");
-
-        ScrollTrigger.create({
-          trigger: row,
-          start: "top 88%",
-          onEnter: () => {
-            gsap.to(row, {
-              x: 0,
-              opacity: 1,
-              duration: 0.7,
-              ease: "power3.out",
-              delay: i * 0.05,
-            });
-
-            gsap.to(badges, {
-              scale: 1,
-              opacity: 1,
-              duration: 0.45,
-              stagger: 0.05,
-              ease: "back.out(1.6)",
-              delay: i * 0.05 + 0.2,
-            });
-          },
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        gsap.set(".stack-intro, .stack-card, .stack-chip", {
+          clearProps: "all",
+          opacity: 1,
+          scale: 1,
+          x: 0,
+          y: 0,
         });
-
-        // Parallax
-        gsap.to(row, {
-          y: -40,
-          ease: "none",
-          scrollTrigger: {
-            trigger: row,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-
-        // =========================
-        // 3D TILT EFFECT
-        // =========================
-
-        row.addEventListener("mousemove", (e) => {
-          const rect = row.getBoundingClientRect();
-
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-
-          const rotateY = gsap.utils.mapRange(
-            0,
-            rect.width,
-            -6,
-            6,
-            x
-          );
-
-          const rotateX = gsap.utils.mapRange(
-            0,
-            rect.height,
-            6,
-            -6,
-            y
-          );
-
-          gsap.to(row, {
-            rotateX,
-            rotateY,
-            transformPerspective: 1000,
-            transformOrigin: "center",
-            duration: 0.4,
-            ease: "power2.out",
-          });
-        });
-
-        row.addEventListener("mouseleave", () => {
-          gsap.to(row, {
-            rotateX: 0,
-            rotateY: 0,
-            duration: 0.7,
-            ease: "elastic.out(1,0.5)",
-          });
-        });
-      });
-
-      // =========================
-      // MAGNETIC BADGES
-      // =========================
-
-      const badges = gsap.utils.toArray<HTMLElement>(".ts-badge");
-
-      badges.forEach((badge) => {
-        const xTo = gsap.quickTo(badge, "x", {
-          duration: 0.4,
-          ease: "power3.out",
-        });
-
-        const yTo = gsap.quickTo(badge, "y", {
-          duration: 0.4,
-          ease: "power3.out",
-        });
-
-        badge.addEventListener("mousemove", (e) => {
-          const rect = badge.getBoundingClientRect();
-
-          const x = e.clientX - rect.left - rect.width / 2;
-          const y = e.clientY - rect.top - rect.height / 2;
-
-          xTo(x * 0.25);
-          yTo(y * 0.25);
-
-          gsap.to(badge, {
-            scale: 1.08,
-            duration: 0.25,
-          });
-        });
-
-        badge.addEventListener("mouseleave", () => {
-          xTo(0);
-          yTo(0);
-
-          gsap.to(badge, {
-            scale: 1,
-            duration: 0.5,
-            ease: "elastic.out(1,0.4)",
-          });
-        });
-      });
-
-      // =========================
-      // FLOATING BADGE LOOP
-      // =========================
-
-      gsap.to(".ts-badge", {
-        y: "random(-4,4)",
-        duration: "random(2,4)",
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: {
-          each: 0.03,
-          from: "random",
-        },
-      });
-
-      // =========================
-      // SPOTLIGHT EFFECT
-      // =========================
-
-      const spotlight = section?.querySelector(
-        ".ts-spotlight"
-      ) as HTMLDivElement;
-
-      if (section && spotlight) {
-        section.addEventListener("mousemove", (e) => {
-          const rect = section.getBoundingClientRect();
-
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-
-          gsap.to(spotlight, {
-            opacity: 1,
-            background: `
-              radial-gradient(
-                circle at ${x}px ${y}px,
-                rgba(255,255,255,0.08),
-                transparent 240px
-              )
-            `,
-            duration: 0.3,
-            ease: "power2.out",
-          });
-        });
-
-        section.addEventListener("mouseleave", () => {
-          gsap.to(spotlight, {
-            opacity: 0,
-            duration: 0.5,
-          });
-        });
+        return;
       }
+
+      gsap.fromTo(
+        ".stack-intro",
+        { y: 26, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.75,
+          stagger: 0.1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 78%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+
+      gsap.fromTo(
+        ".stack-card",
+        { y: 34, opacity: 0, scale: 0.98 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.09,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".stack-grid",
+            start: "top 82%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+
+      gsap.fromTo(
+        ".stack-chip",
+        { y: 10, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.35,
+          stagger: 0.025,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: ".stack-grid",
+            start: "top 76%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
     },
     { scope: containerRef }
   );
@@ -302,123 +111,87 @@ export default function TechStack() {
   return (
     <section
       ref={containerRef}
-      className="relative overflow-hidden w-full px-6 py-24 bg-[#071c0b]"
+      className="relative w-full overflow-hidden border-y border-white/5 bg-[#040506] px-6 py-24"
     >
-      {/* NOISE */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-soft-light pointer-events-none bg-[url('/noise.png')]" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-[linear-gradient(rgba(255,255,255,0.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.7)_1px,transparent_1px)] bg-[length:56px_56px]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-brand-flax/40 to-transparent" />
 
-      {/* SPOTLIGHT */}
-      <div className="ts-spotlight absolute inset-0 pointer-events-none opacity-0" />
+      <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+        <div className="flex flex-col gap-7 lg:sticky lg:top-28">
+          <div className="flex flex-col gap-4">
+            <p className="stack-intro text-xs font-bold uppercase text-brand-olivine">
+              Tech stack
+            </p>
+            <h2 className="stack-intro max-w-xl text-4xl font-black leading-tight text-white md:text-6xl font-display">
+              Tools I use to ship polished interfaces.
+            </h2>
+            <p className="stack-intro max-w-lg text-sm leading-relaxed text-gray-400 md:text-base">
+              My stack is centered on React product work: strong fundamentals, component-driven UI, responsive styling, and enough backend awareness to collaborate across full-stack flows.
+            </p>
+          </div>
 
-      {/* FLOATING ORB */}
-      <div className="ts-orb absolute top-0 left-1/2 w-[500px] h-[500px] rounded-full bg-brand-olivine/10 blur-3xl pointer-events-none -translate-x-1/2" />
-
-      {/* HEADER */}
-      <div className="max-w-4xl mx-auto mb-16 relative z-10">
-        <p className="ts-eyebrow text-xs tracking-[0.2em] uppercase text-brand-olivine mb-3">
-          Tech stack
-        </p>
-
-        <div className="overflow-hidden mb-3">
-          <h2 className="ts-title-inner text-5xl md:text-6xl font-black tracking-tight text-white leading-none">
-            What I work with
-          </h2>
-        </div>
-
-        <div className="overflow-hidden">
-          <p className="ts-sub-inner text-sm md:text-base text-gray-400 max-w-xl leading-relaxed">
-            My development stack is tailored to building fast,
-            modular, immersive, and beautifully interactive
-            digital experiences.
-          </p>
-        </div>
-      </div>
-
-      {/* STACK */}
-      <div className="max-w-4xl mx-auto flex flex-col relative z-10">
-        {stack.map((cat) => (
-          <div
-            key={cat.label}
-            className="
-              ts-row
-              group
-              grid
-              md:grid-cols-[180px_1fr]
-              gap-5
-              py-7
-              border-t border-white/5
-              opacity-0
-              -translate-x-8
-              transition-all
-              duration-500
-              hover:bg-white/[0.03]
-              hover:px-5
-              hover:rounded-3xl
-              will-change-transform
-            "
-          >
-            {/* LEFT */}
-            <div className="flex items-start pt-1">
-              <span
-                className="
-                  text-sm
-                  font-semibold
-                  text-white
-                  transition-all
-                  duration-300
-                  group-hover:text-brand-flax-300
-                "
-              >
-                {cat.label}
-              </span>
+          <div className="stack-intro grid grid-cols-3 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+            <div className="border-r border-white/10 p-4">
+              <span className="block text-2xl font-black text-white">4</span>
+              <span className="text-xs text-gray-500">Focus areas</span>
             </div>
-
-            {/* RIGHT */}
-            <div className="flex flex-col gap-4">
-              <p className="text-sm text-gray-500 leading-relaxed max-w-lg">
-                {cat.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {cat.items.map((item) => (
-                  <span
-                    key={item}
-                    className="
-                      ts-badge
-                      text-xs
-                      text-gray-300
-                      bg-white/5
-                      border
-                      border-white/[0.08]
-                      px-3
-                      py-1.5
-                      rounded-full
-                      opacity-0
-                      scale-75
-                      cursor-default
-                      transition-all
-                      duration-300
-                      hover:text-brand-dark
-                      hover:border-brand-flax-400/40
-                      hover:bg-brand-flax-400
-                      hover:shadow-[0_0_25px_rgba(248,231,43,0.18)]
-                      backdrop-blur-sm
-                    "
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
+            <div className="border-r border-white/10 p-4">
+              <span className="block text-2xl font-black text-white">18+</span>
+              <span className="text-xs text-gray-500">Tools</span>
+            </div>
+            <div className="p-4">
+              <span className="block text-2xl font-black text-white">React</span>
+              <span className="text-xs text-gray-500">Main lane</span>
             </div>
           </div>
-        ))}
+        </div>
 
-        <div className="border-t border-white/5 mt-2" />
+        <div className="stack-grid grid grid-cols-1 gap-5 md:grid-cols-2">
+          {skillCategories.map((category, index) => {
+            const accent = accents[index % accents.length];
 
-        
+            return (
+              <article
+                key={category.label}
+                className={`stack-card group min-h-[280px] rounded-2xl border ${accent.border} bg-[#0c0c12]/85 p-6 shadow-2xl shadow-black/25 transition duration-300 hover:-translate-y-1 hover:bg-[#111119]`}
+              >
+                <div className="mb-7 flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-2">
+                    <span className={`w-fit rounded-full border ${accent.border} ${accent.surface} px-3 py-1 text-xs font-bold ${accent.text}`}>
+                      {accent.label}
+                    </span>
+                    <h3 className="text-2xl font-extrabold text-white font-display">
+                      {category.label}
+                    </h3>
+                  </div>
+                  <span className="font-mono text-xs text-white/20">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+
+                <p className="mb-6 text-sm leading-relaxed text-gray-400">
+                  {category.description}
+                </p>
+
+                <div className="mb-6 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className={`h-full w-[78%] rounded-full bg-linear-to-r ${accent.bar} transition-all duration-500 group-hover:w-[92%]`} />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {category.items.map((item) => (
+                    <span
+                      key={item}
+                      className="stack-chip rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-xs font-medium text-gray-300 transition duration-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
-
-
     </section>
   );
 }

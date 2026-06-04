@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import gsap from "gsap";
+import { githubUrl, primaryEmail } from "../data/portfolio";
 
 export default function Navigate() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,6 +56,7 @@ export default function Navigate() {
   // Mobile menu GSAP animation
   useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = "hidden";
       gsap.fromTo(
         ".mobile-nav-link",
         { y: 30, opacity: 0, rotateX: -15 },
@@ -68,7 +70,24 @@ export default function Navigate() {
           delay: 0.15,
         }
       );
+    } else {
+      document.body.style.overflow = "";
     }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
   return (
@@ -127,6 +146,8 @@ export default function Navigate() {
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden w-10 h-10 flex flex-col justify-center items-center gap-1.5 z-50 text-white focus:outline-none"
           aria-label="Toggle menu"
+          aria-controls="mobile-navigation"
+          aria-expanded={isOpen}
         >
           <span
             className={`w-6 h-0.5 bg-current transition-all duration-300 origin-center ${
@@ -148,11 +169,16 @@ export default function Navigate() {
 
       {/* Mobile Navigation Menu Drawer */}
       <div
+        id="mobile-navigation"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
+        onClick={() => setIsOpen(false)}
         className={`fixed inset-0 bg-[#030303]/95 backdrop-blur-xl z-30 flex flex-col items-center justify-center gap-8 transition-all duration-500 md:hidden ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
-        <ul className="flex flex-col gap-8 text-center">
+        <ul className="flex flex-col gap-8 text-center" onClick={(event) => event.stopPropagation()}>
           {links.map((link) => {
             const isActive = activePath === link.path;
             return (
@@ -177,7 +203,7 @@ export default function Navigate() {
         {/* Mobile social links */}
         <div className="flex items-center gap-6 mt-8">
           <a
-            href="https://github.com/TraDeThuong"
+            href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-500 hover:text-white transition-colors duration-300"
@@ -188,7 +214,7 @@ export default function Navigate() {
             </svg>
           </a>
           <a
-            href="mailto:huynhthanhtra458@gmail.com"
+            href={`mailto:${primaryEmail}`}
             className="text-gray-500 hover:text-white transition-colors duration-300"
             aria-label="Email"
           >

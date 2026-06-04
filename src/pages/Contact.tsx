@@ -3,18 +3,18 @@ import type { FormEvent } from "react";
 import Navigate from "../components/Navigate";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import emailjs from "@emailjs/browser"; // 1. Import thư viện EmailJS
+import emailjs from "@emailjs/browser";
+import { contactInfo, primaryEmail } from "../data/portfolio";
 
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [subject, setSubject] = useState("");
-  // Cập nhật status hỗ trợ thêm trạng thái báo lỗi 'error'
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null); // 2. Tạo ref để liên kết dữ liệu form trực tiếp với EmailJS
+  const formRef = useRef<HTMLFormElement>(null);
 
   useGSAP(() => {
     // Stagger fade animations
@@ -25,19 +25,34 @@ export default function ContactPage() {
     );
   }, { scope: containerRef });
 
+  const openMailFallback = () => {
+    const fallbackSubject = subject || `Portfolio inquiry from ${name}`;
+    const body = [`Name: ${name}`, `Email: ${email}`, "", message].join("\n");
+    window.location.href = `mailto:${primaryEmail}?subject=${encodeURIComponent(fallbackSubject)}&body=${encodeURIComponent(body)}`;
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !message) return;
+    if (!name || !email || !message || !formRef.current) return;
+
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      openMailFallback();
+      setStatus("error");
+      return;
+    }
 
     setStatus("sending");
 
-    // 3. Thực hiện kích hoạt cổng gửi thư của EmailJS
     emailjs
       .sendForm(
-        "service_v7l7e34",       // Service ID lấy trực tiếp từ ảnh cấu hình 
-        "template_z5icr4m",      // Template ID 
-        formRef.current!,        // HTML Form Element chứa dữ liệu nhập
-        "FEX-FhV_Z6B2A9qm7"        // Thay bằng Public Key lấy tại Account -> API Keys trên EmailJS
+        serviceId,
+        templateId,
+        formRef.current,
+        publicKey
       )
       .then(
         () => {
@@ -50,6 +65,7 @@ export default function ContactPage() {
         (error) => {
           console.error("EmailJS Error details:", error);
           setStatus("error");
+          openMailFallback();
         }
       );
   };
@@ -77,24 +93,20 @@ export default function ContactPage() {
           
           {/* Left Column: Quick Info Cards */}
           <div className="flex flex-col gap-6 w-full">
-            {[
-              { label: "Phone Connection", val: "0372 127 458", href: "tel:0372127458" },
-              { label: "Email Address", val: "huynhthanhtra458@gmail.com", href: "mailto:huynhthanhtra458@gmail.com" },
-              { label: "GitHub Profile", val: "github.com/TraDeThuong", href: "https://github.com/TraDeThuong" }
-            ].map((card, idx) => (
+            {contactInfo.filter((card) => card.href).map((card) => (
               <a
-                key={idx}
-                href={card.href}
+                key={card.label}
+                href={card.href ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-anim group p-6 rounded-2xl bg-brand-card border border-white/5 hover:border-brand-olivine/25 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-5 shadow-lg"
               >
                 <div className="flex flex-col">
                   <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold group-hover:text-brand-olivine transition-colors duration-300">
-                    {card.label}
+                    {card.type}
                   </span>
                   <span className="text-sm font-medium text-white break-all mt-1">
-                    {card.val}
+                    {card.label}
                   </span>
                 </div>
               </a>
@@ -208,7 +220,7 @@ export default function ContactPage() {
                 {/* Thông báo lỗi khi quá trình gửi thất bại */}
                 {status === "error" && (
                   <p className="text-red-400 text-xs font-medium tracking-wide animate-pulse">
-                    ❌ Failed to send message. Please check connection and try again.
+                    Message could not be sent directly. Your email app should open as a fallback.
                   </p>
                 )}
 

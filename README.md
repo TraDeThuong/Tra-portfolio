@@ -9,7 +9,9 @@ This is a personal portfolio site built with React, TypeScript and Vite. It cont
 - React
 - TypeScript
 - Vite
-- Tailwind / CSS (if used)
+- Tailwind CSS
+- GSAP
+- EmailJS
 
 ## Install & Run (Local)
 
@@ -25,13 +27,25 @@ npm install
 npm run dev
 ```
 
-3. Build for production:
+3. Configure the contact form:
+
+Copy `.env.example` to `.env.local` and fill in the EmailJS values:
+
+```bash
+VITE_EMAILJS_SERVICE_ID=
+VITE_EMAILJS_TEMPLATE_ID=
+VITE_EMAILJS_PUBLIC_KEY=
+```
+
+If these values are missing, the contact form falls back to opening a `mailto:` link.
+
+4. Build for production:
 
 ```bash
 npm run build
 ```
 
-4. Preview production build:
+5. Preview production build:
 
 ```bash
 npm run preview
@@ -44,7 +58,7 @@ Note: If `npm run dev` fails, check your Node.js version and reinstall dependenc
 - `src/` — source code
   - `components/` — reusable components
   - `pages/` — pages (Home, About, Projects, Contact...)
-  - `assets/` — images, icons
+  - `data/` — shared portfolio data for projects, skills, roadmap, and contact info
   - `main.tsx`, `App.tsx` — app entry points
 - `public/` — static assets
 
@@ -59,8 +73,8 @@ You can deploy to Vercel, Netlify, GitHub Pages, or any static hosting. Typical 
 
 ## Common edits
 
-- Update personal info in `src/pages/About.tsx` or `src/components/home/Hero.tsx`.
-- Add new projects in `src/pages/Projects.tsx` or a dedicated component.
+- Update shared project, skill, roadmap, and contact data in `src/data/portfolio.ts`.
+- Update personal copy in `src/pages/About.tsx` or `src/components/home/Hero.tsx`.
 
 ## Contact
 
